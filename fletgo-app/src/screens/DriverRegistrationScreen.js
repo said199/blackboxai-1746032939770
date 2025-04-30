@@ -17,7 +17,7 @@ const items = [
 
 export default function DriverRegistrationScreen({ navigation }) {
   const { updateUserData } = useUser();
-  const { toggleDriverMode } = useUserMode();
+  const { toggleDriverMode, driverVerificationStatus } = useUserMode();
 
   const handleAccept = () => {
     // Update user context to mark driver as registered
@@ -28,6 +28,9 @@ export default function DriverRegistrationScreen({ navigation }) {
     navigation.replace('Home');
   };
 
+  // Provide default empty object if driverVerificationStatus is undefined
+  const verificationStatus = driverVerificationStatus || {};
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -37,13 +40,20 @@ export default function DriverRegistrationScreen({ navigation }) {
         <Text style={styles.headerTitle}>Verificación</Text>
       </View>
       <ScrollView contentContainerStyle={styles.content}>
-        {items.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.item} onPress={() => navigation.navigate(item.screen)}>
-            <MaterialCommunityIcons name={item.icon} size={24} color={colors.secondary} />
-            <Text style={styles.itemLabel}>{item.label}</Text>
-            <MaterialCommunityIcons name="chevron-right" size={24} color={colors.text} />
-          </TouchableOpacity>
-        ))}
+        {items.map((item, index) => {
+          const isVerified = verificationStatus[item.label.toLowerCase().replace(/ /g, '')];
+          return (
+            <TouchableOpacity key={index} style={styles.item} onPress={() => navigation.navigate(item.screen)}>
+              <MaterialCommunityIcons 
+                name={isVerified ? "check-circle" : item.icon} 
+                size={24} 
+                color={isVerified ? "green" : colors.secondary} 
+              />
+              <Text style={styles.itemLabel}>{item.label}</Text>
+              <MaterialCommunityIcons name="chevron-right" size={24} color={colors.text} />
+            </TouchableOpacity>
+          );
+        })}
         <CustomButton
           title="ACEPTAR"
           onPress={handleAccept}
