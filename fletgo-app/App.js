@@ -14,6 +14,12 @@ import HomeScreen from './src/screens/HomeScreen';
 import { EditProfileScreen } from './src/screens/EditProfileScreen';
 import { DrawerContent } from './src/navigation/DrawerContent';
 import DriverRegistrationScreen from './src/screens/DriverRegistrationScreen';
+import BasicInfoScreen from './src/screens/BasicInfoScreen';
+import IDCardScreen from './src/screens/IDCardScreen';
+import DriverLicenseScreen from './src/screens/DriverLicenseScreen';
+import CriminalRecordScreen from './src/screens/CriminalRecordScreen';
+import VehicleInfoScreen from './src/screens/VehicleInfoScreen';
+import BankAccountScreen from './src/screens/BankAccountScreen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -55,6 +61,12 @@ export default function App() {
             <Stack.Screen name="Home" component={HomeDrawer} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
             <Stack.Screen name="DriverRegistration" component={DriverRegistrationScreen} options={{ title: 'Registro de Conductor' }} />
+            <Stack.Screen name="BasicInfo" component={BasicInfoScreen} options={{ title: 'Información Básica' }} />
+            <Stack.Screen name="IDCard" component={IDCardScreen} options={{ title: 'Tarjeta de Identificación' }} />
+            <Stack.Screen name="DriverLicense" component={DriverLicenseScreen} options={{ title: 'Licencia de Conducir' }} />
+            <Stack.Screen name="CriminalRecord" component={CriminalRecordScreen} options={{ title: 'Carta de Antecedentes' }} />
+            <Stack.Screen name="VehicleInfo" component={VehicleInfoScreen} options={{ title: 'Información del Vehículo' }} />
+            <Stack.Screen name="BankAccount" component={BankAccountScreen} options={{ title: 'Cuenta Bancaria' }} />
           </Stack.Navigator>
         </NavigationContainer>
         </UserProvider>
