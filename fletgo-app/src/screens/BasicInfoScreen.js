@@ -55,34 +55,50 @@ export default function BasicInfoScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <MaterialIcons name="arrow-back" size={24} color={colors.text} />
-      </TouchableOpacity>
-      <Text style={styles.title}>Información Básica</Text>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <MaterialIcons name="arrow-back" size={24} color={colors.text} />
+        </TouchableOpacity>
+
+        <Text style={styles.title}>Información Básica</Text>
+      </View>
+
       <MaterialIcons name="person" size={64} color={colors.primary} style={styles.icon} />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Ingrese su nombre completo"
-        value={fullName}
-        onChangeText={setFullName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="DD/MM/AAAA"
-        value={birthDate}
-        onChangeText={validateDate}
-        keyboardType="number-pad"
-        maxLength={10}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Ingrese su correo electrónico"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Nombre Completo</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Ingrese su nombre completo"
+          value={fullName}
+          onChangeText={setFullName}
+          autoCapitalize="words"
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Fecha de nacimiento</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="DD/MM/AAAA"
+          value={birthDate}
+          onChangeText={validateDate}
+          keyboardType="number-pad"
+          maxLength={10}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Correo electrónico</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Ingrese su correo electrónico"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+      </View>
 
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveButtonText}>GUARDAR</Text>
@@ -101,18 +117,31 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 30,
+    paddingTop: 30,
+  },
   backButton: {
-    marginBottom: 10,
+    marginRight: 10,
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 20,
   },
   icon: {
     alignSelf: 'center',
     marginBottom: 20,
+  },
+  inputGroup: {
+    marginBottom: 15,
+  },
+  label: {
+    fontSize: 14,
+    color: colors.text,
+    marginBottom: 5,
   },
   input: {
     borderWidth: 1,
@@ -120,7 +149,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    marginBottom: 15,
   },
   saveButton: {
     backgroundColor: colors.secondary,
