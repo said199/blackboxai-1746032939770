@@ -7,12 +7,12 @@ import { useUser } from '../context/UserContext';
 import { useUserMode } from '../context/UserModeContext';
 
 const items = [
-  { label: 'Información básica', icon: 'cloud-upload-outline' },
-  { label: 'Tarjeta de identificación', icon: 'cloud-upload-outline' },
-  { label: 'Licencia de conducir', icon: 'cloud-upload-outline' },
-  { label: 'Carta de antecedentes Penales/Policiales', icon: 'cloud-upload-outline' },
-  { label: 'Información acerca del vehículo', icon: 'cloud-upload-outline' },
-  { label: 'Cuenta Bancaria', icon: 'cloud-upload-outline' },
+  { label: 'Información básica', icon: 'cloud-upload-outline', screen: 'BasicInfo' },
+  { label: 'Tarjeta de identificación', icon: 'cloud-upload-outline', screen: 'IDCard' },
+  { label: 'Licencia de conducir', icon: 'cloud-upload-outline', screen: 'DriverLicense' },
+  { label: 'Carta de antecedentes Penales/Policiales', icon: 'cloud-upload-outline', screen: 'CriminalRecord' },
+  { label: 'Información acerca del vehículo', icon: 'cloud-upload-outline', screen: 'VehicleInfo' },
+  { label: 'Cuenta Bancaria', icon: 'cloud-upload-outline', screen: 'BankAccount' },
 ];
 
 export default function DriverRegistrationScreen({ navigation }) {
@@ -38,7 +38,7 @@ export default function DriverRegistrationScreen({ navigation }) {
       </View>
       <ScrollView contentContainerStyle={styles.content}>
         {items.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.item}>
+          <TouchableOpacity key={index} style={styles.item} onPress={() => navigation.navigate(item.screen)}>
             <MaterialCommunityIcons name={item.icon} size={24} color={colors.secondary} />
             <Text style={styles.itemLabel}>{item.label}</Text>
             <MaterialCommunityIcons name="chevron-right" size={24} color={colors.text} />
