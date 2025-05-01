@@ -22,6 +22,7 @@ export default function IDCardScreen({ navigation }) {
 
   const askCameraPermission = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    console.log('Camera permission status:', status);
     if (status !== 'granted') {
       Alert.alert('Permiso denegado', 'Se necesita permiso para usar la cámara.');
       return false;
@@ -31,6 +32,7 @@ export default function IDCardScreen({ navigation }) {
 
   const askGalleryPermission = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    console.log('Gallery permission status:', status);
     if (status !== 'granted') {
       Alert.alert('Permiso denegado', 'Se necesita permiso para acceder a la galería.');
       return false;
@@ -39,21 +41,28 @@ export default function IDCardScreen({ navigation }) {
   };
 
   const takePhoto = async () => {
-    const hasPermission = await askCameraPermission();
-    if (!hasPermission) return;
+    try {
+      const hasPermission = await askCameraPermission();
+      if (!hasPermission) return;
 
-    let result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaType.Images,
-      quality: 1,
-    });
+      console.log('Launching camera...');
+      let result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      });
+      console.log('Camera result:', result);
 
-    if (!result.cancelled) {
-      if (currentPhotoType === 'front') {
-        setFrontPhoto(result.uri);
-      } else if (currentPhotoType === 'back') {
-        setBackPhoto(result.uri);
+      if (!result.cancelled) {
+        if (currentPhotoType === 'front') {
+          setFrontPhoto(result.uri);
+        } else if (currentPhotoType === 'back') {
+          setBackPhoto(result.uri);
+        }
+        closeModal();
       }
-      closeModal();
+    } catch (error) {
+      console.error('Error launching camera:', error);
+      Alert.alert('Error', 'No se pudo abrir la cámara. Intenta nuevamente.');
     }
   };
 
@@ -61,10 +70,10 @@ export default function IDCardScreen({ navigation }) {
     const hasPermission = await askGalleryPermission();
     if (!hasPermission) return;
 
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.Images,
-      quality: 1,
-    });
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      });
 
     if (!result.cancelled) {
       if (currentPhotoType === 'front') {
@@ -100,7 +109,7 @@ export default function IDCardScreen({ navigation }) {
         <Text style={styles.label}>Tarjeta de Identificación (frente)</Text>
         <TouchableOpacity style={styles.photoPlaceholder} onPress={() => openModal('front')}>
           {frontPhoto ? (
-            <Image source={{ uri: frontPhoto }} style={styles.photo} />
+            <Image source={{ uri: frontPhoto }} style={styles.photo} resizeMode="contain" />
           ) : (
             <>
               <MaterialIcons name="add-a-photo" size={40} color={colors.text} />
@@ -114,7 +123,7 @@ export default function IDCardScreen({ navigation }) {
         <Text style={styles.label}>Tarjeta de Identificación (parte trasera)</Text>
         <TouchableOpacity style={styles.photoPlaceholder} onPress={() => openModal('back')}>
           {backPhoto ? (
-            <Image source={{ uri: backPhoto }} style={styles.photo} />
+            <Image source={{ uri: backPhoto }} style={styles.photo} resizeMode="contain" />
           ) : (
             <>
               <MaterialIcons name="add-a-photo" size={40} color={colors.text} />
