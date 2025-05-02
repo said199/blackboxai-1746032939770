@@ -14,6 +14,7 @@ import CustomButton from '../components/CustomButton';
 import RegisterLink from '../components/RegisterLink';
 import { colors } from '../theme/colors';
 import { loginUser } from '../services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Logo = () => (
   <Svg width="280" height="100" viewBox="0 0 1000 300">
@@ -46,6 +47,11 @@ const LoginScreen = ({ navigation }) => {
       const response = await loginUser(phoneNumber);
       
       if (response.estado) {
+        // Guardar id, nombre y correo en AsyncStorage
+        await AsyncStorage.setItem('userId', response.id.toString());
+        await AsyncStorage.setItem('userName', response.nombre);
+        await AsyncStorage.setItem('userEmail', response.correo);
+      
         // Login exitoso, navegar a verificación
         Alert.alert(
           'Bienvenido',
