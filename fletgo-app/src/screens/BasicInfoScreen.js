@@ -1,12 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function BasicInfoScreen({ navigation }) {
   const [fullName, setFullName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const storedName = await AsyncStorage.getItem('userName');
+        const storedEmail = await AsyncStorage.getItem('userEmail');
+        if (storedName) setFullName(storedName);
+        if (storedEmail) setEmail(storedEmail);
+      } catch (error) {
+        console.log('Error loading user data from AsyncStorage', error);
+      }
+    };
+    loadUserData();
+  }, []);
 
   const validateDate = (text) => {
     // Permitir solo números y /
@@ -59,11 +74,8 @@ export default function BasicInfoScreen({ navigation }) {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-
         <Text style={styles.title}>Información Básica</Text>
       </View>
-
-      <MaterialIcons name="person" size={64} color={colors.primary} style={styles.icon} />
 
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Nombre Completo</Text>
@@ -72,7 +84,6 @@ export default function BasicInfoScreen({ navigation }) {
           placeholder="Ingrese su nombre completo"
           value={fullName}
           onChangeText={setFullName}
-          autoCapitalize="words"
         />
       </View>
 
@@ -121,7 +132,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 30,
-    paddingTop: 30,
+    paddingTop: 50,
+    paddingHorizontal: 20,
   },
   backButton: {
     marginRight: 10,
@@ -130,10 +142,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: colors.text,
-  },
-  icon: {
-    alignSelf: 'center',
-    marginBottom: 20,
   },
   inputGroup: {
     marginBottom: 15,
