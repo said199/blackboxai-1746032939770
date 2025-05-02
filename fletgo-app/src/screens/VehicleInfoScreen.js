@@ -15,7 +15,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { colors } from '../theme/colors';
 
-const vehicleTypes = ['camión', 'volqueta', 'rastra'];
+const vehicleTypes = ['Camión', 'Volqueta', 'Rastra'];
 const geographicAreas = ['Centro América', 'Nacional', 'Departamental', 'Municipio'];
 const volumeTypes = ['Kilómetros cúbicos', 'Hectómetros cúbicos', 'Metros cúbicos'];
 const cargoTypes = ['Carga general', 'Carga pesada', 'Carga frágil'];
@@ -260,12 +260,7 @@ export default function VehicleInfoScreen({ navigation }) {
         <Text style={styles.title}>Información del vehículo</Text>
       </View>
 
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Selecciona un vehículo:</Text>
-        <Text style={styles.textInputDisabled}>
-          {selectedVehicleType || 'Selecciona un tipo de vehículo'}
-        </Text>
-      </View>
+      {/* Eliminado el campo "Selecciona un vehículo" que no tiene lista desplegable */}
 
       <TouchableOpacity onPress={() => openDropdownModal('vehicleType')} style={styles.dropdown}>
         <Text style={styles.dropdownText}>
@@ -410,23 +405,32 @@ export default function VehicleInfoScreen({ navigation }) {
         <MaterialIcons name="arrow-drop-down" size={24} color={colors.text} />
       </TouchableOpacity>
 
-      <View style={styles.checkboxGroup}>
-        <TouchableOpacity
-          style={styles.checkboxContainer}
-          onPress={() => setHasLoad(!hasLoad)}
-        >
-          <View style={[styles.checkbox, hasLoad && styles.checkboxChecked]} />
-          <Text style={styles.checkboxLabel}>Carga</Text>
-        </TouchableOpacity>
+      <View style={styles.loadUnloadContainer}>
+  <Text style={styles.sectionTitle}>Cuenta con carga y descarga</Text>
+  <View style={styles.checkboxGroup}>
+    <TouchableOpacity
+      style={styles.checkboxContainer}
+      onPress={() => {
+        setHasLoad(true);
+        setHasUnload(false);
+      }}
+    >
+      <View style={[styles.checkbox, hasLoad && styles.checkboxChecked]} />
+      <Text style={styles.checkboxLabel}>Carga</Text>
+    </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.checkboxContainer}
-          onPress={() => setHasUnload(!hasUnload)}
-        >
-          <View style={[styles.checkbox, hasUnload && styles.checkboxChecked]} />
-          <Text style={styles.checkboxLabel}>Descarga</Text>
-        </TouchableOpacity>
-      </View>
+    <TouchableOpacity
+      style={styles.checkboxContainer}
+      onPress={() => {
+        setHasUnload(true);
+        setHasLoad(false);
+      }}
+    >
+      <View style={[styles.checkbox, hasUnload && styles.checkboxChecked]} />
+      <Text style={styles.checkboxLabel}>Descarga</Text>
+    </TouchableOpacity>
+  </View>
+</View>
 
       <TouchableOpacity
         style={[styles.saveButton, isSaveDisabled() && styles.saveButtonDisabled]}
@@ -493,13 +497,13 @@ export default function VehicleInfoScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+  
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 30,
-    paddingTop: 30,
+    paddingTop: 50,
     paddingHorizontal: 20,
   },
   backButton: {
@@ -602,9 +606,24 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary,
     borderColor: colors.secondary,
   },
+  loadUnloadContainer: {
+    marginHorizontal: 20,
+    marginBottom: 15,
+  },
   checkboxLabel: {
     fontSize: 14,
     color: colors.text,
+  },
+  loadUnloadContainer: {
+    marginHorizontal: 20,
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginHorizontal: 20,
+    marginBottom: 10,
   },
   saveButton: {
     backgroundColor: colors.secondary,
