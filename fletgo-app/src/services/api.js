@@ -18,7 +18,8 @@ export const loginUser = async (phone) => {
       return {
         estado: true,
         correo: data.data.correo,
-        nombre: data.data.nombre
+        nombre: data.data.nombre,
+        id:data.data.id
       };
     } else {
       return {
