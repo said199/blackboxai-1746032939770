@@ -5,4 +5,5 @@ export const colors = {
   background: '#FFFFFF',   // Fondo blanco
   inputBg: '#F5F5F5',     // Fondo de inputs
   error: '#FF0000',       // Color para errores
+
 };
