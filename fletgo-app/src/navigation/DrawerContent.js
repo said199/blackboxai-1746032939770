@@ -40,7 +40,7 @@ export function DrawerContent(props) {
                 <MaterialCommunityIcons 
                   name="pencil" 
                   size={24} 
-                  color={colors.secondary}
+                  color={colors.white}
                 />
               </TouchableOpacity>
             </View>
@@ -198,6 +198,9 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderBottomWidth: 1,
     borderBottomColor: colors.inputBg,
+    backgroundColor: colors.secondary,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
   },
   userContainer: {
     flexDirection: 'row',
@@ -219,16 +222,16 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: colors.white,
   },
   userEmail: {
     fontSize: 14,
-    color: colors.text,
+    color: colors.white,
     marginTop: 4,
   },
   location: {
     fontSize: 14,
-    color: colors.text,
+    color: colors.white,
     marginTop: 4,
   },
   drawerContent: {
