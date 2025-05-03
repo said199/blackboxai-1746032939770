@@ -3,13 +3,18 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getUserPersonalInfo, saveUserPersonalInfo }from '../services/api';
+import {
+  getUserPersonalInfo,
+  saveUserPersonalInfo,
+  actualizarDatosPersonales
+} from '../services/api';
 import { colors } from '../theme/colors';
 
 export default function BasicInfoScreen({ navigation }) {
   const [fullName, setFullName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [email, setEmail] = useState('');
+  const [datosExistentes, setDatosExistentes] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -20,11 +25,12 @@ export default function BasicInfoScreen({ navigation }) {
         const result = await getUserPersonalInfo(userId);
         if (result.estado) {
           console.log('✔ Cargando datos en inputs', result);
+          setDatosExistentes(true);
           setFullName(result.nombre);
           setBirthDate(formatearFecha(result.fechaNacimiento));
-
           setEmail(result.correo);
         } else {
+          setDatosExistentes(false);
           console.log('Error al cargar datos personales:', result.descripcion);
         }
       };
@@ -32,6 +38,17 @@ export default function BasicInfoScreen({ navigation }) {
       loadUserData();
     }, [])
   );
+
+  const formatearFecha = (fechaIso) => {
+    if (!fechaIso || !fechaIso.includes('-')) return fechaIso;
+    const [a, m, d] = fechaIso.split('T')[0].split('-');
+    return `${d}/${m}/${a}`;
+  };
+
+  const convertirFechaAFormatoApi = (fecha) => {
+    const [d, m, a] = fecha.split('/');
+    return `${a}-${m}-${d}`; // formato YYYY-MM-DD
+  };
 
   const validateDate = (text) => {
     const cleaned = text.replace(/[^\d/]/g, '');
@@ -45,12 +62,7 @@ export default function BasicInfoScreen({ navigation }) {
     }
     setBirthDate(formatted);
   };
-  const formatearFecha = (fechaIso) => {
-    if (!fechaIso || !fechaIso.includes('-')) return fechaIso;
-    const [a, m, d] = fechaIso.split('T')[0].split('-');
-    return `${d}/${m}/${a}`;
-  };
-  
+
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -79,12 +91,23 @@ export default function BasicInfoScreen({ navigation }) {
       return;
     }
 
-    const result = await saveUserPersonalInfo(userId, fullName, birthDate, email);
-    if (Array.isArray(result) && result[0]?.estado) {
-      Alert.alert('Guardado', 'Información básica guardada correctamente.');
-      navigation.goBack();
+    if (datosExistentes) {
+      const fechaFormateada = convertirFechaAFormatoApi(birthDate);
+      const result = await actualizarDatosPersonales(userId, fullName, email, fechaFormateada);
+      if (result.success) {
+        Alert.alert('Actualizado', result.message || 'Datos actualizados.');
+        navigation.goBack();
+      } else {
+        Alert.alert('Error', result.message || 'Error al actualizar.');
+      }
     } else {
-      Alert.alert('Error', result?.[0]?.descripcion || 'Error al guardar la información.');
+      const result = await saveUserPersonalInfo(userId, fullName, birthDate, email);
+      if (Array.isArray(result) && result[0]?.estado) {
+        Alert.alert('Guardado', 'Datos guardados correctamente.');
+        navigation.goBack();
+      } else {
+        Alert.alert('Error', result?.[0]?.descripcion || 'Error al guardar.');
+      }
     }
   };
 
