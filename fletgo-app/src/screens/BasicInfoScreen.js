@@ -1,33 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
+import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUserPersonalInfo, saveUserPersonalInfo }from '../services/api';
+import { colors } from '../theme/colors';
 
 export default function BasicInfoScreen({ navigation }) {
   const [fullName, setFullName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [email, setEmail] = useState('');
 
-  useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const storedName = await AsyncStorage.getItem('userName');
-        const storedEmail = await AsyncStorage.getItem('userEmail');
-        if (storedName) setFullName(storedName);
-        if (storedEmail) setEmail(storedEmail);
-      } catch (error) {
-        console.log('Error loading user data from AsyncStorage', error);
-      }
-    };
-    loadUserData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const loadUserData = async () => {
+        const userId = await AsyncStorage.getItem('userId');
+        if (!userId) return;
+
+        const result = await getUserPersonalInfo(userId);
+        if (result.estado) {
+          console.log('✔ Cargando datos en inputs', result);
+          setFullName(result.nombre);
+          setBirthDate(formatearFecha(result.fechaNacimiento));
+
+          setEmail(result.correo);
+        } else {
+          console.log('Error al cargar datos personales:', result.descripcion);
+        }
+      };
+
+      loadUserData();
+    }, [])
+  );
 
   const validateDate = (text) => {
-    // Permitir solo números y /
     const cleaned = text.replace(/[^\d/]/g, '');
-
-    // Formatear automáticamente como DD/MM/AAAA
     let formatted = cleaned;
     if (cleaned.length >= 2 && !cleaned.includes('/')) {
       formatted = cleaned.slice(0, 2) + '/' + cleaned.slice(2);
@@ -36,36 +43,49 @@ export default function BasicInfoScreen({ navigation }) {
       const parts = cleaned.split('/');
       formatted = parts[0] + '/' + parts[1].slice(0, 2) + '/' + parts[1].slice(2);
     }
-
     setBirthDate(formatted);
   };
-
+  const formatearFecha = (fechaIso) => {
+    if (!fechaIso || !fechaIso.includes('-')) return fechaIso;
+    const [a, m, d] = fechaIso.split('T')[0].split('-');
+    return `${d}/${m}/${a}`;
+  };
+  
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!fullName.trim() || !birthDate.trim() || !email.trim()) {
       Alert.alert('Error', 'Por favor complete todos los campos');
       return;
     }
 
-    // Validar formato de fecha DD/MM/AAAA
     const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
     if (!datePattern.test(birthDate)) {
       Alert.alert('Error', 'Por favor ingrese una fecha válida en formato DD/MM/AAAA');
       return;
     }
 
-    // Validar correo electrónico
     if (!validateEmail(email)) {
       Alert.alert('Error', 'Por favor ingrese un correo electrónico válido');
       return;
     }
 
-    Alert.alert('Guardado', 'Información básica guardada correctamente.');
-    navigation.goBack();
+    const userId = await AsyncStorage.getItem('userId');
+    if (!userId) {
+      Alert.alert('Error', 'No se encontró el ID de usuario.');
+      return;
+    }
+
+    const result = await saveUserPersonalInfo(userId, fullName, birthDate, email);
+    if (Array.isArray(result) && result[0]?.estado) {
+      Alert.alert('Guardado', 'Información básica guardada correctamente.');
+      navigation.goBack();
+    } else {
+      Alert.alert('Error', result?.[0]?.descripcion || 'Error al guardar la información.');
+    }
   };
 
   return (
@@ -123,11 +143,7 @@ export default function BasicInfoScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
+  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -135,22 +151,10 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingHorizontal: 20,
   },
-  backButton: {
-    marginRight: 10,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  inputGroup: {
-    marginBottom: 15,
-  },
-  label: {
-    fontSize: 14,
-    color: colors.text,
-    marginBottom: 5,
-  },
+  backButton: { marginRight: 10 },
+  title: { fontSize: 22, fontWeight: 'bold', color: colors.text },
+  inputGroup: { marginBottom: 15 },
+  label: { fontSize: 14, color: colors.text, marginBottom: 5 },
   input: {
     borderWidth: 1,
     borderColor: colors.inputBg,
@@ -165,11 +169,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
-  saveButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+  saveButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   helpText: {
     marginTop: 15,
     fontSize: 12,
