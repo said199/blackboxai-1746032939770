@@ -100,4 +100,66 @@ export const verifyOTP = async (email, otp) => {
     console.error('Error en verificación:', error);
     return false;
   }
+
+  
+};
+export const getUserPersonalInfo = async (userId) => {
+  try {
+    const response = await fetch(`${API_URL}/api/Informacion/datospersonales/${userId}`);
+    const data = await response.json();
+    console.log('📥 Datos recibidos del backend:', data);
+
+    if (data.sucess && data.data && data.data.length > 0) {
+      const userData = data.data[0];
+
+      let fechaNacimiento = '';
+      if (userData.datosPersonales) {
+        const fechas = JSON.parse(userData.datosPersonales);
+        if (Array.isArray(fechas) && fechas.length > 0) {
+          const ultimaFecha = fechas[fechas.length - 1].FechaNacimiento;
+          fechaNacimiento = ultimaFecha;
+        }
+      }
+
+      return {
+        estado: true,
+        nombre: userData.Nombre || '',
+        correo: userData.Correo || '',
+        fechaNacimiento,
+      };
+    } else {
+      return {
+        estado: false,
+        descripcion: 'No se encontraron datos.'
+      };
+    }
+  } catch (error) {
+    console.error('Error al obtener datos personales:', error);
+    return {
+      estado: false,
+      descripcion: 'Error de conexión. Intente nuevamente.'
+    };
+  }
+};
+
+export const saveUserPersonalInfo = async (userId, fullName, birthDate, email) => {
+  try {
+    const response = await fetch(`${API_URL}/api/Datos_Personales`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        refusuario: parseInt(userId, 10),
+        Nombre: fullName,
+        fechanacimiento: birthDate,
+        correo: email,
+        foto: null,
+      }),
+    });
+
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    console.error('Error al guardar información personal:', error);
+    return null;
+  }
 };
