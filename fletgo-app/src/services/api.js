@@ -163,3 +163,38 @@ export const saveUserPersonalInfo = async (userId, fullName, birthDate, email) =
     return null;
   }
 };
+export const actualizarDatosPersonales = async (userId, nombre, correo, fechaNacimiento, imagenUri = null) => {
+  const formData = new FormData();
+
+  formData.append('id', userId);
+  formData.append('nombre', nombre);
+  formData.append('correo', correo);
+  formData.append('fechanacimiento', fechaNacimiento);
+
+  if (imagenUri) {
+    const fileName = imagenUri.split('/').pop();
+    const fileType = fileName.split('.').pop();
+
+    formData.append('foto', {
+      uri: imagenUri,
+      name: fileName,
+      type: `image/${fileType}`,
+    });
+  }
+
+  try {
+    const response = await fetch('https://www.fletgohn.com/backend/api/datospersonales/actualizar', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error al actualizar datos personales:', error);
+    return { success: false, message: 'Error de conexión' };
+  }
+};
